@@ -3,6 +3,8 @@ package com.mark0wka.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -11,15 +13,5 @@ public class Film {
 
     private String objTypeId = "Film";
 
-    private String name;
-
-    private String description;
-
-    private String genre;
-
-    private double rating;
-
-    private String year;
-
-    private int budget;
+    private Set<Attribute> attributes = new HashSet<>();
 }
