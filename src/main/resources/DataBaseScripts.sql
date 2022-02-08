@@ -10,12 +10,13 @@ CREATE DATABASE "CinemaDB"
 CREATE TABLE object_list (
 	object_id serial PRIMARY KEY,
 	object_type_id varchar(50) NOT null,
-	name varchar(50) NOT null
+	name varchar(50)
 )
 
 CREATE TABLE object_attribute_list(
-	attr_id serial PRIMARY KEY,
-	object_id serial REFERENCES object_list(object_id),
-	name varchar(50) NOT null,
+	id serial PRIMARY KEY,
+	attr_id serial NOT null,
+	object_id serial NOT null,
+	name varchar(50),
 	value varchar(50) NOT null
 )

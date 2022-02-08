@@ -2,10 +2,6 @@ package com.mark0wka.entity;
 
 import lombok.Data;
 
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
-
 @Data
 public class Cinema {
 
@@ -19,14 +15,15 @@ public class Cinema {
 
     private String address;
 
-    private CinemaObject cinemaObject = new CinemaObject();
+    private EntityObject entity = new EntityObject("a", "a");
 
     public Cinema(String name, String address) {
-        this.id = cinemaObject.getObjectId();
+        this.id = entity.getObjectId();
         this.name = name;
         this.address = address;
-        cinemaObject.setName(name);
-        cinemaObject.setObjectTypeId(objTypeId);
-        cinemaObject.addAttribute(new Attribute(id, "Address", address));
+        entity.setName(name);
+        entity.setObjectTypeId(objTypeId);
+        //entity.addAttribute(new Attribute(id, "Address", address));
+        //entity.addAttribute(new Attribute(id, "Name", name));
     }
 }

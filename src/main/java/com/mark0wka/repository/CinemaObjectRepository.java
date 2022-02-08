@@ -1,7 +1,12 @@
 package com.mark0wka.repository;
 
-import com.mark0wka.entity.CinemaObject;
+import com.mark0wka.entity.EntityObject;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface CinemaObjectRepository extends JpaRepository<CinemaObject, Integer> {
+import java.util.List;
+
+public interface CinemaObjectRepository extends JpaRepository<EntityObject, Integer> {
+    List<EntityObject> findByName (String name);
 }

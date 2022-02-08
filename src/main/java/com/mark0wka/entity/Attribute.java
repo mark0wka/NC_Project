@@ -13,21 +13,23 @@ public class Attribute {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
     @Column(name = "attr_id")
     private int attrId;
 
     @Column(name = "object_id", nullable = false)
     private int objectId;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = true)
     private String name;
 
     @Column(name = "value", nullable = false)
     private String value;
 
-    public Attribute(int objectId, String name, String value) {
+    public Attribute(int objectId, Integer attrId, String value) {
         this.objectId = objectId;
-        this.name = name;
+        this.attrId = attrId;
         this.value = value;
     }
 }
