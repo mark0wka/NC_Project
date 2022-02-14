@@ -3,6 +3,8 @@ package com.mark0wka.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Hall {
@@ -11,10 +13,6 @@ public class Hall {
 
     private String objTypeId = "Hall";
 
-    private int cinemaId;
-
-    private int seatsCount;
-
-    private int[][] seats;
+    private Set<Attribute> attributes = new HashSet<>();
 
 }

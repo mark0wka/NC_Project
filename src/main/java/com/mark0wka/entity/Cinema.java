@@ -2,8 +2,6 @@ package com.mark0wka.entity;
 
 import lombok.Data;
 
-import javax.persistence.*;
-
 @Data
 public class Cinema {
 
@@ -11,8 +9,21 @@ public class Cinema {
 
     private String objTypeId = "Cinema";
 
+    //private Set<Attribute> attributes = new HashSet<>();
+
+    private String name;
+
     private String address;
 
-    private int hallsList;
+    private EntityObject entity = new EntityObject("a", "a");
 
+    public Cinema(String name, String address) {
+        this.id = entity.getObjectId();
+        this.name = name;
+        this.address = address;
+        entity.setName(name);
+        entity.setObjectTypeId(objTypeId);
+        //entity.addAttribute(new Attribute(id, "Address", address));
+        //entity.addAttribute(new Attribute(id, "Name", name));
+    }
 }

@@ -1,6 +1,7 @@
 package com.mark0wka.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -8,10 +9,11 @@ import java.util.Set;
 
 import static javax.persistence.CascadeType.ALL;
 
-@Entity
+@javax.persistence.Entity
 @Table(name = "object_list")
 @Data
-public class CinemaObject {
+@NoArgsConstructor
+public class EntityObject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,10 +26,16 @@ public class CinemaObject {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(cascade = ALL)
+    @OneToMany(cascade = ALL, mappedBy = "objectId")
     private Set<Attribute> attributes = new HashSet<>();
 
     public void addAttribute(Attribute attribute) {
         attributes.add(attribute);
+    }
+
+
+    public EntityObject(String objectTypeId, String name) {
+        this.objectTypeId = objectTypeId;
+        this.name = name;
     }
 }
