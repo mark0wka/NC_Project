@@ -18,6 +18,14 @@ export class CinemaService {
     return this.http.get<EntityObject[]>("http://localhost:8080/cinema/all")//"${this.apiServerUrl}/cinema/all");
   }
 
+  public getHalls(): Observable<EntityObject[]> {
+    return this.http.get<EntityObject[]>("http://localhost:8080/halls/all")//"${this.apiServerUrl}/cinema/all");
+  }
+
+  public getSeats(): Observable<EntityObject[]> {
+    return this.http.get<EntityObject[]>("http://localhost:8080/seats/all")//"${this.apiServerUrl}/cinema/all");
+  }
+
   public getFilms(): Observable<EntityObject[]> {
     return this.http.get<EntityObject[]>("http://localhost:8080/films/all")
   }
@@ -29,4 +37,9 @@ export class CinemaService {
   public addFilm(requestBody: RequestBody): Observable<EntityObject> {
     return this.http.post<EntityObject>('http://localhost:8080/create/film', requestBody)
   }
+
+  public addHall(requestBody: RequestBody): Observable<EntityObject> {
+    return this.http.post<EntityObject>('http://localhost:8080/create/hall', requestBody)
+  }
+
 }

@@ -37,6 +37,10 @@
               <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#addCinemaModal">Add Cinema</a>
             </li>
 
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#addHallModal">Add Hall</a>
+            </li>
+
             <!-- Add Film Button -->
             <li class="nav-item">
               <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#addFilmModal">Add Film</a>
@@ -58,7 +62,7 @@
       <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addCinemaModalLabel">Добавить кинотеатр</h5>
+            <h5 class="modal-title" id="addCinemaModalLabel">Add Cinema</h5>
           </div>
           <div class="modal-body">
             <form #addCinemaForm="ngForm" (ngSubmit)="onAddCinema(addCinemaForm)">
@@ -70,46 +74,52 @@
                 <label for="cinemaAddress" class="form-label">Cinema address</label>
                 <input type="text" ngModel name="cinemaAddress" class="form-control" id="cinemaAddress" required>
               </div>
-              <div class="mb-3">
-                <label for="hallsNumber" class="form-label">Halls number</label>
-                <input type="text" ngModel name="hallsNumber" class="form-control" id="hallsNumber" required>
-              </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button [disabled]="addCinemaForm.invalid" type="submit" id="add-cinema" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHallModal">Add Cinema</button>
+                <button [disabled]="addCinemaForm.invalid" type="submit" id="add-cinema">Add Cinema</button>
               </div>
             </form>
           </div>
         </div>
       </div>
     </div>
-    <div *ngFor="let hall of halls">
-      <div class="modal fade" id="addHallModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addHallModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="addHallModalLabel">Добавить кинотеатр</h5>
-            </div>
-            <div class="modal-body">
-              <form #addHallForm="ngForm" (ngSubmit)="onAddHall(addHallForm)">
-                <div class="mb-3">
-                  <label for="hallNumber" class="form-label">Cinema name</label>
-                  <input type="text" ngModel name="hallNumber" class="form-control" id="hallNumber" required>
-                </div>
-                <div class="mb-3">
-                  <label for="hallRows" class="form-label">Cinema address</label>
-                  <input type="text" ngModel name="hallRows" class="form-control" id="hallRows" required>
-                </div>
-                <div class="mb-3">
-                  <label for="hallCols" class="form-label">Halls number</label>
-                  <input type="text" ngModel name="hallCols" class="form-control" id="hallCols" required>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button [disabled]="addHallForm.invalid" type="submit" id="add-hall" class="btn btn-primary">Add Hall</button>
-                </div>
-              </form>
-            </div>
+  </section>
+
+
+  <!-- Add Hall Modal -->
+  <section>
+    <div class="modal fade" id="addHallModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addHallModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addHallModalLabel">Add Hall</h5>
+          </div>
+          <div class="modal-body">
+            <form #addHallForm="ngForm" (ngSubmit)="onAddHall(addHallForm)">
+              <div class="mb-3">
+                <label for="cinemaDropdown" class="form-label">Cinema Name</label>
+                <select ngModel name="cinemaName" class="form-select" id="cinemaDropdown" aria-label="Default select example">
+                  <option selected>Choose Cinema</option>
+                  <option *ngFor="let cinema of cinemas">{{cinema.name}}</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="hallNumber" class="form-label">Hall number</label>
+                <input type="text" ngModel name="hallNumber" class="form-control" id="hallNumber" required>
+              </div>
+              <div class="mb-3">
+                <label for="hallRows" class="form-label">Rows</label>
+                <input type="text" ngModel name="hallRows" class="form-control" id="hallRows" required>
+              </div>
+              <div class="mb-3">
+                <label for="hallCols" class="form-label">Columns</label>
+                <input type="text" ngModel name="hallCols" class="form-control" id="hallCols" required>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button [disabled]="addHallForm.invalid || addHallForm.value.cinemaName == 'Choose Cinema' || addHallForm.value.cinemaName == ''" type="submit" id="add-hall" class="btn btn-primary" data-bs-dismiss="modal">Add Hall</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -149,7 +159,7 @@
               </div>
               <div class="mb-3">
                 <label for="filmDescription" class="form-label">Description</label>
-                <input type="text" ngModel name="filmDescription" class="form-control" id="filmDescription" required>
+                <textarea type="text" ngModel name="filmDescription" class="form-control" id="filmDescription" required></textarea>
               </div>
               <div class="mb-3">
                 <label for="filmPosterURL" class="form-label">Poster URL</label>
@@ -170,48 +180,59 @@
     </div>
   </section>
 
+
   <!-- Films List -->
   <section>
     <div class="container">
-      <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
+      <div class="card-group">
         <div *ngFor="let film of films">
           <div class="card" style="width: 18rem;">
-            <img src="{{findById(film.attributes, 15)}}" class="card-img-top" alt="...">
+            <div class="poster">
+              <img src="{{findById(film.attributes, 15)}}" class="card-img-top" alt="...">
+            </div>
+
             <div class="card-body">
               <h5 class="card-title">{{film.name}}</h5>
-              <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filmModal">Show</a>
-            </div>
-          </div>
-
-          <!-- Film Info Modal -->
-          <div class="modal fade" id="filmModal" tabindex="-1" aria-labelledby="filmModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">{{film.name}}</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="ratio ratio-16x9">
-                    <iframe src="{{findById(film.attributes, 16)}}" allowfullscreen></iframe>
-                  </div>
-                  <hr>
-                  <h6>Genre:</h6>
-                  <p>{{findById(film.attributes, 11)}}</p>
-                  <h6>Director:</h6>
-                  <p>{{findById(film.attributes, 10)}}</p>
-                  <h6>County:</h6>
-                  <p>{{findById(film.attributes, 12)}}</p>
-                  <h6>Description:</h6>
-                  <p>{{findById(film.attributes, 14)}}</p>
-                </div>
-              </div>
+              <a href="#" (click)="onClick(film.objectId)" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filmModal">Show</a>
             </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+
+  <!-- Film Info Modal -->
+  <section>
+    <div class="modal fade" id="filmModal" tabindex="-1" aria-labelledby="filmModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">{{getName()}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="ratio ratio-16x9">
+              <iframe [src]="getById(16) | youtube" allowfullscreen></iframe>
+            </div>
+            <hr>
+            <h6>Genre:</h6>
+            <p>{{getById(11)}}</p>
+            <h6>Director:</h6>
+            <p>{{getById(10)}}</p>
+            <h6>County:</h6>
+            <p>{{getById(12)}}</p>
+            <h6>Description:</h6>
+            <p>{{getById(14)}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<div *ngFor="let seat of seats">
+  <a>{{seat.name}}</a>
+</div>
 </body>
 </html>
 

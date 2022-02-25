@@ -33,16 +33,15 @@ public class CinemaController {
         return ObjRepository.findAllByObjectTypeId("Film");
     }
 
-    @PostMapping("/cinema")
-    public Cinema createCinema(@RequestBody Cinema cinema) {
-        System.out.println(cinema);
-        EntityObject obj = cinema.getEntity();
-        System.out.println(obj);
-        ObjRepository.save(cinema.getEntity());
-        //AttributeRepository.save
-        return cinema;
+    @GetMapping("/halls/all")
+    public List<EntityObject> getAllHalls() {
+        return ObjRepository.findAllByObjectTypeId("Hall");
     }
 
+    @GetMapping("/seats/all")
+    public List<EntityObject> getAllSeats() {
+        return ObjRepository.findAllByObjectTypeId("Seat");
+    }
 
     @PostMapping("/create/cinema")
     public EntityObject createCinema(@RequestBody Request request) {
@@ -52,26 +51,27 @@ public class CinemaController {
         }
         return saveData(request);
     }
-
-
+    
     @PostMapping("/create/film")
     public EntityObject createFilm(@RequestBody Request request) {
         return saveData(request);
     }
 
     @PostMapping("/create/hall")
-    public Set<EntityObject> createHall(@RequestBody Request request) {
+    public EntityObject createHall(@RequestBody Request request) {
         EntityObject entityObject = saveData(request);
-        Set<EntityObject> hallAndSeats = new HashSet<>();
-        hallAndSeats.add(entityObject);
-        for(int i = 0; i < Integer.parseInt(request.getAttrMap().get(3)) * Integer.parseInt(request.getAttrMap().get(4)); i++) {
-            Map<Integer, String> attributes = new HashMap<>();
-            attributes.put(5, i + 1 + "");
-            attributes.put(6, entityObject.getObjectId() + "");
-            attributes.put(7, "false");
-            saveData(new Request("Seat", null, attributes));
+        Map<Integer, String> attributes = new HashMap<>();
+        int cols = Integer.parseInt(request.getAttrMap().get(3));
+        int rows = Integer.parseInt(request.getAttrMap().get(4));
+        for(int i = 1; i <= cols; i++) {
+            for(int j = 1; j <= rows; j++) {
+                attributes.put(5, cols * (j - 1) + i + "");
+                attributes.put(6, entityObject.getObjectId() + "");
+                attributes.put(7, "false");
+                saveData(new Request("Seat", i + "-" + j, attributes));
+            }
         }
-        return hallAndSeats;
+        return entityObject;
     }
 
     public EntityObject saveData(Request request) {
@@ -87,5 +87,4 @@ public class CinemaController {
         ObjRepository.save(flushedEntity);
         return flushedEntity;
     }
-
 }

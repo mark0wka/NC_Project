@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, Pipe} from '@angular/core';
 import {Cinema} from "./cinema";
 import {CinemaService} from "./cinema.service";
 import {HttpErrorResponse} from "@angular/common/http";
@@ -16,13 +16,17 @@ import {Attribute} from "./attribute";
 export class AppComponent implements OnInit{
   public cinemas: EntityObject[] = [];
   public halls: EntityObject[] = [];
+  public seats: EntityObject[] = [];
   public films: EntityObject[] = [];
+  public curFilmId: number = 0;
 
   constructor(private cinemaService: CinemaService) { }
 
   ngOnInit() {
     this.getCinemas();
     this.getFilms();
+    this.getHalls();
+    this.getSeats();
   }
 
   public getCinemas(): void {
@@ -47,6 +51,28 @@ export class AppComponent implements OnInit{
     );
   }
 
+  public getHalls(): void {
+    this.cinemaService.getHalls().subscribe(
+      (response: EntityObject[]) => {
+        this.halls = response;
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+      }
+    );
+  }
+
+  public getSeats(): void {
+    this.cinemaService.getSeats().subscribe(
+      (response: EntityObject[]) => {
+        this.seats = response;
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+      }
+    );
+  }
+
   public onAddCinema(addCinemaForm: NgForm): void {
     document.getElementById('add-cinema')!.click();
     let req: RequestBody = {
@@ -56,7 +82,6 @@ export class AppComponent implements OnInit{
         1: addCinemaForm.value.cinemaAddress,
       }
     }
-    this.halls.length = addCinemaForm.value.hallsNumber;
     this.cinemaService.addCinema(req).subscribe(
       (response:EntityObject) => {
         console.log(response);
@@ -74,14 +99,18 @@ export class AppComponent implements OnInit{
       name: addHallForm.value.hallNumber,
       objTypeId: "Hall",
       attrMap: {
-        2: addHallForm.value.cinemaAddress,
+        2: this.getCinemaByName(addHallForm.value.cinemaName) + "",
+        3: addHallForm.value.hallCols,
+        4: addHallForm.value.hallRows,
       }
     }
-    this.halls.length = addHallForm.value.hallsNumber;
-    this.cinemaService.addCinema(req).subscribe(
+    console.log(req)
+
+    this.cinemaService.addHall(req).subscribe(
       (response:EntityObject) => {
         console.log(response);
-        this.getCinemas();
+        this.getHalls();
+        this.getSeats();
       },
       (error: HttpErrorResponse) => {
         alert(error.message);
@@ -117,7 +146,34 @@ export class AppComponent implements OnInit{
   }
 
   public findById(attributes: Attribute[], id: number): string{
-    console.log(attributes.find(x => x.attrId == id)!.value);
     return attributes.find(x => x.attrId == id)!.value;
+  }
+
+  public getFilm(id: number): EntityObject{
+    return this.films.find(x=> x.objectId == id)!
+  }
+
+  public getCinemaByName(name: string): number {
+    return this.cinemas.find(x=> x.name == name)!.objectId
+  }
+
+  public onClick(id: number) {
+    this.curFilmId = id;
+  }
+
+  public getName(): string {
+    if(this.curFilmId == 0) {
+      return "";
+    } else {
+      return this.getFilm(this.curFilmId).name;
+    }
+  }
+
+  public getById(id: number): string{
+    if(this.curFilmId == 0) {
+      return "";
+    } else {
+      return this.findById(this.getFilm(this.curFilmId).attributes, id);
+    }
   }
 }
