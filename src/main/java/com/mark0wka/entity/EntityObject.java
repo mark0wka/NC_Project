@@ -1,10 +1,13 @@
 package com.mark0wka.entity;
 
+import com.mark0wka.repository.AttributeRepository;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static javax.persistence.CascadeType.ALL;
@@ -37,5 +40,17 @@ public class EntityObject {
     public EntityObject(String objectTypeId, String name) {
         this.objectTypeId = objectTypeId;
         this.name = name;
+    }
+
+    public void setValue(final int attrId, final String value) {
+        Optional<Attribute> any = this.getAttributes().stream()
+                .filter(attr -> attr.getAttrId() == attrId)
+                .findAny();
+        if (any.isPresent()) {
+            any.get().setValue(value);
+            return;
+        }
+        Attribute attribute = new Attribute(this.getObjectId(), attrId, value);
+        this.getAttributes().add(attribute);
     }
 }
