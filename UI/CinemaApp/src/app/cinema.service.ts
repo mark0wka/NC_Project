@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Cinema} from "./cinema";
 import {environment} from "../environments/environment";
 import {RequestBody} from "./request.body";
 import {EntityObject} from "./entity.object";
 import {User} from "./user";
+
+const httpOptions = {
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+};
 
 @Injectable({
   providedIn: 'root'
@@ -40,11 +44,11 @@ export class CinemaService {
   }
 
   public getSessionsByFilmId(filmId: number): Observable<EntityObject[]> {
-    return this.http.get<EntityObject[]>(this.apiServerUrl + '/sessions/' + filmId);
+    return this.http.get<EntityObject[]>(this.apiServerUrl + '/sessions/filmid/' + filmId);
   }
 
-  public getSessionsByCinemaName(cinemaName: string): Observable<EntityObject[]> {
-    return this.http.get<EntityObject[]>(this.apiServerUrl + '/sessions/' + cinemaName);
+  public getSessionsByCinemaId(cinemaId: number): Observable<EntityObject[]> {
+    return this.http.get<EntityObject[]>(this.apiServerUrl + '/sessions/cinemaid/' + cinemaId);
   }
 
   public getSeatsBySessionId(sessionId: number): Observable<EntityObject[]> {
@@ -65,15 +69,28 @@ export class CinemaService {
   }
 
   public addSession(requestBody: RequestBody): Observable<EntityObject> {
-    return this.http.post<EntityObject>(this.apiServerUrl + '/create/session', requestBody)
+    console.log(this.http.post<EntityObject>(this.apiServerUrl + '/create/session', requestBody, httpOptions));
+    return this.http.post<EntityObject>(this.apiServerUrl + '/create/session', requestBody, httpOptions)
   }
 
   public updateSeat(requestBody: RequestBody): Observable<EntityObject> {
     return this.http.put<EntityObject>(this.apiServerUrl + '/update/seat', requestBody)
   }
 
-  public addUser(user: User): Observable<String> {
-    return this.http.post<String>(this.apiServerUrl + '/registration', user)
+  public login(credentials: User): Observable<any> {
+    return this.http.post(this.apiServerUrl + '/signin', credentials, httpOptions);
+  }
+
+  public register(user: any): Observable<any> {
+    return this.http.post(this.apiServerUrl + '/signup', {
+      username: user.username,
+      email: user.email,
+      password: user.password
+    }, httpOptions);
+  }
+
+  public updateSeats(req: any): Observable<any> {
+    return this.http.put(this.apiServerUrl + '/update/seats', req);
   }
 
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
@@ -7,7 +7,7 @@
 <body>
   <!-- Navbar -->
   <header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
         <a class="navbar-brand" href="">Кинотеатр</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +24,7 @@
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown" >
                 <div *ngFor="let cinema of cinemas">
-                  <li><a class="dropdown-item" href="">{{cinema.name}}</a></li>
+                  <li><a class="dropdown-item" href="" (click)="saveCurCinema(cinema.objectId); getSessionsByCinemaId(cinema.objectId)" data-bs-toggle="modal" data-bs-target="#cinemaModal">{{cinema.name}}</a></li>
 
                 </div>
                 <li><hr class="dropdown-divider"></li>
@@ -32,37 +32,57 @@
               </ul>
             </li>
 
-            <!-- Add Cinema Button -->
+            <!-- Admin Panel Button -->
             <li class="nav-item">
-              <a class="nav-link" href="add_cinema" data-bs-toggle="modal" data-bs-target="#addCinemaModal">Add Cinema</a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link" href="add_hall" data-bs-toggle="modal" (click)="getCinemas()" data-bs-target="#addHallModal">Add Hall</a>
-            </li>
-
-            <!-- Add Film Button -->
-            <li class="nav-item">
-              <a class="nav-link" href="add_film" data-bs-toggle="modal" data-bs-target="#addFilmModal">Add Film</a>
-            </li>
-
-            <!-- Add Session Button -->
-            <li class="nav-item">
-              <a class="nav-link" href="add_session" data-bs-toggle="modal" (click)="getCinemas()" data-bs-target="#addSessionModal">Add Session</a>
+              <a [hidden]="!isUserAdmin()" class="nav-link" href="" data-bs-toggle="modal" data-bs-target="#adminModal">Admin Panel</a>
             </li>
           </ul>
           <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-            <button class="btn btn-outline-success" type="submit" data-bs-toggle="modal" data-bs-target="#registrationModal">Reg</button>
-            <button class="btn btn-outline-success" type="submit" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+<!--            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">-->
+<!--            <button class="btn btn-outline-success" type="submit">Search</button>-->
+            <button [hidden]="isLoggedIn" class="btn btn-outline-light" type="submit" data-bs-toggle="modal" data-bs-target="#registrationModal">Reg</button>
+            <button [hidden]="isLoggedIn" class="btn btn-outline-light" type="submit" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+            <button [hidden]="!isLoggedIn" class="btn btn-outline-light" type="submit" data-bs-toggle="modal" data-bs-target="#userModal">{{username}}</button>
+            <button [hidden]="!isLoggedIn" (click)="logout()" class="btn btn-outline-light" type="submit">LogOut</button>
           </form>
         </div>
       </div>
     </nav>
   </header>
+  <br>
 
+  <!-- Admin Modal -->
+  <section>
+    <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="adminModalLabel">Admin Panel</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Add Cinema Button -->
+            <button class="btn btn-primary" type="submit" data-bs-toggle="modal" data-bs-target="#addCinemaModal">Add Cinema</button>
+            <br><br>
 
+            <!-- Add Hall Button -->
+            <button class="btn btn-primary" type="submit" (click)="getCinemas()" data-bs-toggle="modal" data-bs-target="#addHallModal">Add Hall</button>
+            <br><br>
+
+            <!-- Add Film Button -->
+            <button class="btn btn-primary" type="submit" data-bs-toggle="modal" data-bs-target="#addFilmModal">Add Film</button>
+            <br><br>
+
+            <!-- Add Session Button -->
+            <button class="btn btn-primary" type="submit" (click)="getCinemas()" data-bs-toggle="modal" data-bs-target="#addSessionModal">Add Session</button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Registration Modal -->
   <section>
@@ -73,14 +93,21 @@
             <h5 class="modal-title" id="registrationModalLabel">Registration</h5>
           </div>
           <div class="modal-body">
-            <form #registrationForm="ngForm" (ngSubmit)="onAddUser(registrationForm)">
+            <form #registrationForm="ngForm" (ngSubmit)="onRegister(registrationForm)">
               <div class="mb-3">
                 <label for="login" class="form-label">Login</label>
-                <input type="text" ngModel name="login" class="form-control" id="login" required>
+                <input type="text" ngModel name="username" class="form-control" id="login" required>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" ngModel name="email" class="form-control" id="email" required>
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="text" ngModel name="cinemaAddress" class="form-control" id="password" required>
+                <input type="password" ngModel name="password" class="form-control" id="password" required>
+              </div>
+              <div class="mb-3">
+                <label >{{responseMessage}}</label>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -102,20 +129,61 @@
             <h5 class="modal-title" id="loginModalLabel">Login</h5>
           </div>
           <div class="modal-body">
-            <form #loginForm="ngForm">
+            <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)">
               <div class="mb-3">
                 <label for="login" class="form-label">Login</label>
-                <input type="text" ngModel name="login" class="form-control" id="login1" required>
+                <input type="text" ngModel name="username" class="form-control" id="login1" required>
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="text" ngModel name="cinemaAddress" class="form-control" id="password1" required>
+                <input type="password" ngModel name="password" class="form-control" id="password1" required>
+              </div>
+              <div class="mb-3">
+                <label >{{responseMessage}}</label>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button [disabled]="loginForm.invalid" type="submit" id="log-in" class="btn btn-primary">Login</button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- User Info Modal -->
+  <section>
+    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="userModalLabel">{{username}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <h5>User Info</h5>
+            <div>
+              <table class="table table-borderless ">
+                <tr>
+                  <td> Username: </td>
+                  <td> {{username}}</td>
+                </tr>
+                <tr>
+                  <td> Id:  </td>
+                  <td> {{userId}}</td>
+                </tr>
+                <tr>
+                  <td> Roles:  </td>
+                  <td> {{roles.toString()}}</td>
+                </tr>
+                <tr>
+                  <td> Token:  </td>
+                  <td> {{token}}</td>
+                </tr>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -150,7 +218,6 @@
       </div>
     </div>
   </section>
-
 
   <!-- Add Hall Modal -->
   <section>
@@ -248,7 +315,6 @@
     </div>
   </section>
 
-
   <!-- Add Film Modal -->
   <section>
     <div class="modal fade" id="addFilmModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addFilmModalLabel" aria-hidden="true">
@@ -302,6 +368,41 @@
     </div>
   </section>
 
+  <!-- Cinema Info Modal -->
+  <section>
+    <div class="modal fade" id="cinemaModal" tabindex="-1" aria-labelledby="cinemaModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cinemaModalLabel">{{getCinemaNameById(curCinemaId)}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" (click)="clear()" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <h5>Sessions</h5>
+            <div *ngFor="let film of films" >
+              <div class="container" [hidden]="getLocalSessionsByFilmId(film.objectId).length == 0">
+                <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
+                  <div class="col" >
+                    <div class="p-3 border bg-primary">
+                      <button type="button" class="btn btn-primary" (click)="saveCurFilm(film.objectId); getSessionsByFilmId(film.objectId)" data-bs-toggle="modal" data-bs-target="#filmModal">{{film.name}}</button>
+                    </div>
+                  </div>
+                  <div class="col" *ngFor="let session of getLocalSessionsByFilmId(film.objectId)">
+                    <div class="p-3 border bg-light">
+                      <button type="button" class="btn btn-light" (click) = "saveCurSessionInfo(session.objectId, curCinemaId); generateHallTable(session.objectId, getCinemaNameById(curCinemaId))" data-bs-toggle="modal" data-bs-target="#sessionModal">{{getAttributeById(session.attributes, 5)}}     {{getAttributeById(session.attributes, 9)}}</button>
+                    </div>
+                  </div>
+
+                </div>
+                <hr>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Films List -->
   <section>
@@ -310,7 +411,7 @@
         <div *ngFor="let film of films">
           <div class="card" style="width: 18rem;">
             <div class="poster">
-              <img src="{{findById(film.attributes, 15)}}" class="card-img-top" alt="...">
+              <img src="{{getAttributeById(film.attributes, 15)}}" class="card-img-top" alt="...">
             </div>
 
             <div class="card-body">
@@ -323,7 +424,6 @@
     </div>
   </section>
 
-
   <!-- Film Info Modal -->
   <section>
     <div class="modal fade" id="filmModal" tabindex="-1" aria-labelledby="filmModalLabel" aria-hidden="true">
@@ -335,32 +435,35 @@
           </div>
           <div class="modal-body">
             <div class="ratio ratio-16x9">
-              <iframe [src]="getById(16) | youtube" allowfullscreen></iframe>
+              <iframe [src]="getFilmAttributeById(16) | youtube" allowfullscreen></iframe>
             </div>
             <hr>
             <h6>Genre:</h6>
-            <p>{{getById(11)}}</p>
+            <p>{{getFilmAttributeById(11)}}</p>
             <h6>Director:</h6>
-            <p>{{getById(10)}}</p>
+            <p>{{getFilmAttributeById(10)}}</p>
             <h6>County:</h6>
-            <p>{{getById(12)}}</p>
+            <p>{{getFilmAttributeById(12)}}</p>
             <h6>Description:</h6>
-            <p>{{getById(14)}}</p>
+            <p>{{getFilmAttributeById(14)}}</p>
             <hr>
             <h5>Sessions</h5>
-            <div *ngFor="let cinema of cinemas">
-              <h6>{{cinema.name}}</h6>
-              <div class="container">
+            <div *ngFor="let cinema of cinemas" >
+              <div class="container" [hidden]="getLocalSessionsByCinemaId(cinema.objectId).length == 0">
                 <div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
-                  <div class="col" *ngFor="let session of getSessionsByCinemaId(cinema.objectId)">
-                    <div class="p-3 border bg-light">
-                      <button type="button" class="btn btn-light" (click) = "saveCurSessionInfo(session.objectId, cinema.objectId); generateHallTable(session.objectId, cinema.name)" data-bs-toggle="modal" data-bs-target="#sessionModal">{{findById(session.attributes, 5)}}     {{findById(session.attributes, 9)}}</button>
+                  <div class="col" >
+                    <div class="p-3 border bg-primary">
+                      <button type="button" class="btn btn-primary" (click)="saveCurCinema(cinema.objectId); getSessionsByCinemaId(cinema.objectId)" data-bs-toggle="modal" data-bs-target="#cinemaModal">{{cinema.name}}</button>
                     </div>
                   </div>
-
+                  <div class="col" *ngFor="let session of getLocalSessionsByCinemaId(cinema.objectId)">
+                    <div class="p-3 border bg-light">
+                      <button type="button" class="btn btn-light" (click) = "saveCurSessionInfo(session.objectId, cinema.objectId); generateHallTable(session.objectId, cinema.name)" data-bs-toggle="modal" data-bs-target="#sessionModal">{{getAttributeById(session.attributes, 5)}}     {{getAttributeById(session.attributes, 9)}}</button>
+                    </div>
+                  </div>
                 </div>
+                <hr>
               </div>
-              <hr>
             </div>
           </div>
         </div>
@@ -377,29 +480,79 @@
             <h5 class="modal-title" id="sessionModalLabel">{{getCurFilmName()}}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" (click)="clear()" aria-label="Close"></button>
           </div>
-          <div *ngFor="let hall of halls">
-            <p>{{hall.objectId}}</p>
-          </div>
           <div class="modal-body">
-            <table class="table">
+            <div class="btn-annotation">
+              <button type="button" class="btn seat-btn green-btn btn-success btn-sm">0</button>
+              <label class="btn-text">Free seats</label>
+              <button type="button" class="btn seat-btn blue-btn btn-primary btn-sm">0</button>
+              <label class="btn-text">Selected seats</label>
+              <button type="button" class="btn seat-btn gray-btn btn-secondary btn-sm" disabled>0</button>
+              <label class="btn-text">Purchased seats</label>
+            </div>
+            <div>
+              <img class="img-info" src="assets/images/ekran.png" alt="image" style="transform: scale(1);">
+              <div class="div-info">
+                <br>
+                <div class="text-info1">screen</div>
+                <br>
+              </div>
+
+            </div>
+            <table class="table table-borderless">
               <tbody>
               <tr *ngFor="let col of cols">
                 <th scope="row">{{col.name}}</th>
                 <td *ngFor="let row of rows">
-                  <button [disabled]="isBought(col.name, row.name)" type="button" class="btn btn-success">{{row.name}}</button>
-<!--                  <ng-container *ngIf="isBought(col.name, row.name); then locked; else enabled"></ng-container>-->
-<!--                  <ng-template #enabled>-->
-<!--                    <button type="button" class="btn btn-success">{{row.name}}</button>-->
-<!--                  </ng-template>-->
-<!--                  <ng-template #locked>-->
-<!--                    <button [disabled]="true" type="button" class="btn btn-danger">{{row.name}}</button>-->
-<!--                  </ng-template>-->
+<!--                  <button [disabled]="isBought(col.name, row.name)" type="button" class="btn btn-success">{{row.name}}</button>-->
+                  <ng-container *ngIf="isBought(col.name, row.name); then locked; else enabled"></ng-container>
+                  <ng-template #enabled>
+                    <button type="button" [ngClass]="isSelected(col.name, row.name) ? 'btn-primary' : 'btn-success'" class="btn seat-btn" (click)="selectSeat(col.name, row.name)">{{row.name}}</button>
+                  </ng-template>
+                  <ng-template #locked>
+                    <button [disabled]="true" type="button" class="btn seat-btn btn-secondary">{{row.name}}</button>
+                  </ng-template>
 
                 </td>
               </tr>
-
               </tbody>
             </table>
+            <hr>
+<!--            <div *ngFor="let cinema of cinemas">-->
+<!--              <h6>cinema: {{cinema.objectId}}</h6>-->
+<!--            </div>-->
+<!--            <div *ngFor="let hall of halls">-->
+<!--              <h6>hall: {{hall.objectId}}</h6>-->
+<!--            </div>-->
+<!--            <div *ngFor="let session of sessions">-->
+<!--              <h6>session: {{session.objectId}}</h6>-->
+<!--            </div>-->
+            <div>
+              <table class="table table-borderless ">
+                <tr>
+                  <td> Film: </td>
+                  <td> {{getCurFilmName()}}</td>
+                </tr>
+                <tr>
+                  <td> Session:  </td>
+                  <td> {{getSessionAttributeBySessionIdAndAttrId(curSessionId, 5)}}</td>
+                </tr>
+                <tr>
+                  <td> Cinema:  </td>
+                  <td> {{getCinemaNameById(curCinemaId)}}, hall {{getHallByCinemaIdAndSessionId(curCinemaId, curSessionId)}}</td>
+                </tr>
+                <tr>
+                  <td> Cost:  </td>
+                  <td> {{getSessionAttributeBySessionIdAndAttrId(curSessionId, 9)}} rub.</td>
+                </tr>
+                <tr>
+                  <td> Selected Seats:  </td>
+                  <td> {{selectedSeatsToSting()}}</td>
+                </tr>
+              </table>
+            </div>
+            <div class="btn-annotation">
+              <button type="button" class="btn btn-primary btn-lg buy-btn" (click)="onUpdateSeats()">BUY</button>
+            </div>
           </div>
         </div>
       </div>

@@ -3,3 +3,60 @@
   height: 400px;
   object-fit:cover;
 }
+
+.seat-btn{
+  border-radius: 50%;
+}
+
+.green-btn{
+  color: #198754;
+}
+
+.blue-btn{
+  color: #0d6efd;
+}
+
+.gray-btn{
+  color: #6c757d;
+}
+
+.btn-annotation {
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 3em;
+  margin-top: 1em;
+}
+
+.btn-text {
+  margin-left: 1em;
+  margin-right: 2em;
+}
+
+.img-info {
+  height: 30px;
+  width: 60%;
+  display: block;
+  margin: 0 auto;
+}
+
+.text-info1 {
+  text-transform: uppercase;
+  font-size: 18px;
+  text-align: center;
+  position: relative;
+  color: #666;
+}
+
+.div-info {
+  display: block;
+}
+
+.buy-btn {
+  width: 200px;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 3em;
+  margin-top: 1em;
+}

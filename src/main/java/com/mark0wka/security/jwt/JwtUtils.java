@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -15,11 +16,11 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("")
-    private String jwtSecret;
+    //@Value("")
+    private final String jwtSecret = "Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=";
 
-    @Value("")
-    private String jwtExpirationMs;
+    //@Value("")
+    private final int jwtExpirationMs = 86400000;
 
     public String generateJwtToken(Authentication authentication) {
 

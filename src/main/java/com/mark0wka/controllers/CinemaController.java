@@ -4,14 +4,19 @@ import com.mark0wka.Request;
 import com.mark0wka.entity.Attribute;
 import com.mark0wka.entity.EntityObject;
 import com.mark0wka.entity.ReservedSeatReq;
+import com.mark0wka.entity.User;
+import com.mark0wka.mail.MailSender;
 import com.mark0wka.repository.AttributeRepository;
 import com.mark0wka.repository.CinemaObjectRepository;
+import com.mark0wka.repository.UserRepository;
 import com.mark0wka.service.CreateServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("")
@@ -22,6 +27,9 @@ public class CinemaController {
 
     @Autowired
     AttributeRepository attributeRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @GetMapping("/cinema/all")
     public List<EntityObject> getAllCinemas() {
@@ -56,10 +64,18 @@ public class CinemaController {
         return result;
     }
 
-    @GetMapping("/sessions/{filmId}")
+    @GetMapping("/sessions/filmid/{filmId}")
     public Set<EntityObject> getSessionsByFilmId(@PathVariable int filmId) {
         Set<EntityObject> result = new HashSet<>();
         List<Attribute> id = attributeRepository.findByAttrIdAndValue(8, String.valueOf(filmId));
+        id.forEach(x -> result.add(objectRepository.findEntityObjectByObjectId(x.getObjectId())));
+        return result;
+    }
+
+    @GetMapping("/sessions/cinemaid/{cinemaId}")
+    public Set<EntityObject> getSessionsByCinemaId(@PathVariable int cinemaId) {
+        Set<EntityObject> result = new HashSet<>();
+        List<Attribute> id = attributeRepository.findByAttrIdAndValue(6, String.valueOf(cinemaId));
         id.forEach(x -> result.add(objectRepository.findEntityObjectByObjectId(x.getObjectId())));
         return result;
     }
@@ -72,15 +88,10 @@ public class CinemaController {
         return result;
     }
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "hello!";
-    }
-
-
     @PostMapping("/create/cinema")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public EntityObject createCinema(@RequestBody Request request) {
-        if (!new CreateServices().cinemaValidator(request.getName(), objectRepository)){
+        if (!new CreateServices().cinemaValidator(request.getName(), objectRepository)) {
             System.out.println("Already exists");
             return null;
         }
@@ -88,18 +99,22 @@ public class CinemaController {
     }
 
     @PostMapping("/create/film")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public EntityObject createFilm(@RequestBody Request request) {
         return saveData(request);
     }
 
     @PostMapping("/create/hall")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public EntityObject createHall(@RequestBody Request request) {
         return saveData(request);
     }
 
-    @PutMapping("/update/seat")
+    @PutMapping("/update/seats")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<EntityObject> updateSeat(@RequestBody ReservedSeatReq request) {
         List<Integer> seatsId = request.getSeatsId();
+        User user = userRepository.findById(request.getUser());
         boolean isAnyConflict = seatsId.stream()
                 .map(seat -> attributeRepository.findAttributeByObjectIdAndAttrId(seat, 23))
                 .map(Attribute::getValue)
@@ -107,6 +122,15 @@ public class CinemaController {
         if (isAnyConflict) {
             //throw exceptiom
         }
+        System.out.println(user);
+        MailSender mailSender = new MailSender();
+        String message = String.format(
+                "Hello, %s!\n" +
+                        "Thanks for tickets buying!",
+                user.getUsername()
+        );
+        mailSender.send(user.getEmail(), "Thanks for buying", message);
+
         return seatsId.stream()
                 .map(objectRepository::getById)
                 .map(seat -> bookSeat(seat, request.getUser()))
@@ -121,14 +145,15 @@ public class CinemaController {
 
 
     @PostMapping("/create/session")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public EntityObject createSession(@RequestBody Request request) {
         EntityObject hall = objectRepository.findEntityObjectByObjectId(Integer.parseInt(request.getAttrMap().get(7)));
         EntityObject entityObject = saveData(request);
         int cols = Integer.parseInt(attributeRepository.findAttributeByObjectIdAndAttrId(hall.getObjectId(), 3).getValue());
         int rows = Integer.parseInt(attributeRepository.findAttributeByObjectIdAndAttrId(hall.getObjectId(), 4).getValue());
         Map<Integer, String> attributes = new HashMap<>();
-        for(int i = 1; i <= cols; i++) {
-            for(int j = 1; j <= rows; j++) {
+        for (int i = 1; i <= cols; i++) {
+            for (int j = 1; j <= rows; j++) {
                 attributes.put(20, cols * (j - 1) + i + "");
                 attributes.put(21, hall.getObjectId() + "");
                 attributes.put(22, entityObject.getObjectId() + "");
